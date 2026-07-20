@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Architect's Insomnia — Marisol Quintane</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-deep:#060b14;
+    --navy:#0d1b2e;
+    --navy-mid:#142943;
+    --navy-line:#2a4260;
+    --baby:#a9d6ef;
+    --baby-soft:#7fb6d9;
+    --baby-dim:#5c88a3;
+    --paper:#e7f1f8;
+    --paper-dim:#b9c9d8;
+    --iron:#4a5b71;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--navy-deep);
+    color:var(--paper);
+    font-family:'Inter',sans-serif;
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+  ::selection{background:var(--baby);color:var(--navy-deep);}
+
+  a{color:var(--baby);}
+
+  .mono{font-family:'IBM Plex Mono',monospace; letter-spacing:.04em;}
+
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:.72rem;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--baby-dim);
+    display:flex;
+    align-items:center;
+    gap:.6em;
+  }
+  .eyebrow::before{
+    content:"";
+    width:22px;height:1px;background:var(--baby-dim);
+  }
+
+  h1,h2,h3{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    margin:0;
+    color:var(--paper);
+  }
+
+  section{
+    position:relative;
+    padding:120px 8vw;
+    max-width:1280px;
+    margin:0 auto;
+  }
+  .reveal{
+    opacity:0;
+    transform:translateY(28px);
+    transition:opacity .9s ease, transform .9s ease;
+  }
+  .reveal.in{opacity:1;transform:translateY(0);}
+  @media (prefers-reduced-motion: reduce){
+    .reveal{opacity:1;transform:none;transition:none;}
+    *{animation-duration:0.001ms !important;}
+  }
+
+  /* ---------- NAV ---------- */
+  nav{
+    position:fixed; top:0; left:0; right:0; z-index:50;
+    display:flex; justify-content:space-between; align-items:center;
+    padding:20px 8vw;
+    background:linear-gradient(180deg, rgba(6,11,20,.92), rgba(6,11,20,0));
+    backdrop-filter:blur(2px);
+  }
+  nav .brand{
+    font-family:'Fraunces',serif; font-style:italic; font-size:1.05rem; color:var(--baby);
+  }
+  nav ul{display:flex; gap:28px; list-style:none; margin:0; padding:0;}
+  nav a{
+    color:var(--paper-dim); text-decoration:none; font-size:.82rem;
+    font-family:'IBM Plex Mono',monospace; letter-spacing:.08em; text-transform:uppercase;
+    transition:color .2s ease;
+  }
+  nav a:hover{color:var(--baby);}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    min-height:100vh;
+    display:flex; flex-direction:column; justify-content:center;
+    padding:0 8vw;
+    max-width:none;
+    background:
+      radial-gradient(circle at 78% 30%, rgba(169,214,239,.09), transparent 45%),
+      repeating-linear-gradient(0deg, transparent 0 39px, rgba(122,166,199,.055) 39px 40px),
+      repeating-linear-gradient(90deg, transparent 0 39px, rgba(122,166,199,.055) 39px 40px),
+      var(--navy-deep);
+    position:relative;
+    overflow:hidden;
+  }
+  .hero-inner{
+    display:grid;
+    grid-template-columns:1.3fr .7fr;
+    gap:40px;
+    align-items:center;
+    position:relative;
+    z-index:2;
+  }
+  .hero h1{
+    font-size:clamp(2.6rem, 6vw, 5.4rem);
+    line-height:1.02;
+    color:var(--paper);
+  }
+  .hero h1 em{
+    font-style:italic; color:var(--baby); font-weight:500;
+  }
+  .hero .byline{
+    margin-top:26px;
+    color:var(--paper-dim);
+    font-size:1.02rem;
+    max-width:520px;
+  }
+  .hero .byline strong{color:var(--baby-soft); font-weight:500;}
+  .meta-row{
+    margin-top:34px;
+    display:flex; gap:32px; flex-wrap:wrap;
+  }
+  .meta-row div{font-family:'IBM Plex Mono',monospace; font-size:.72rem; color:var(--baby-dim); letter-spacing:.1em; text-transform:uppercase;}
+  .meta-row div span{display:block; color:var(--paper); font-size:.95rem; margin-top:6px; letter-spacing:0; text-transform:none; font-family:'Inter',sans-serif;}
+
+  /* insomnia clock — signature element */
+  .clock-wrap{
+    display:flex; flex-direction:column; align-items:center; gap:18px;
+  }
+  .clock-face{
+    width:min(260px, 62vw); height:min(260px, 62vw);
+    position:relative;
+  }
+  .clock-face svg{width:100%; height:100%; overflow:visible;}
+  .hand{
+    transform-origin:100px 100px;
+    filter:drop-shadow(0 0 6px rgba(169,214,239,.55));
+  }
+  .awake-counter{
+    text-align:center;
+  }
+  .awake-counter .num{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:1.5rem; color:var(--baby);
+    letter-spacing:.05em;
+  }
+  .awake-counter .lbl{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:.65rem; color:var(--baby-dim);
+    letter-spacing:.18em; text-transform:uppercase; margin-top:4px;
+  }
+  .scroll-cue{
+    position:absolute; bottom:36px; left:8vw;
+    font-family:'IBM Plex Mono',monospace; font-size:.7rem;
+    color:var(--baby-dim); letter-spacing:.12em; text-transform:uppercase;
+    display:flex; align-items:center; gap:10px;
+  }
+  .scroll-cue .line{width:1px; height:34px; background:linear-gradient(var(--baby-dim), transparent); animation:drip 2.4s ease-in-out infinite;}
+  @keyframes drip{0%,100%{opacity:.25}50%{opacity:1}}
+
+  /* ---------- SECTION HEADERS ---------- */
+  .sec-head{margin-bottom:56px; max-width:720px;}
+  .sec-head h2{font-size:clamp(1.9rem,3.4vw,2.6rem); margin-top:14px;}
+
+  /* ---------- THE PIECE ---------- */
+  .piece-grid{
+    display:grid; grid-template-columns:.9fr 1.1fr; gap:64px; align-items:start;
+  }
+  .frame{
+    background:var(--navy);
+    border:1px solid var(--navy-line);
+    border-radius:2px;
+    padding:28px;
+    position:relative;
+  }
+  .frame::before{
+    content:attr(data-tag);
+    position:absolute; top:-11px; left:24px;
+    background:var(--navy-deep);
+    padding:0 10px;
+    font-family:'IBM Plex Mono',monospace; font-size:.62rem;
+    letter-spacing:.14em; text-transform:uppercase; color:var(--baby-dim);
+  }
+  .piece-copy p{color:var(--paper-dim); margin:0 0 18px;}
+  .piece-copy p:first-child{color:var(--paper); font-size:1.12rem; font-family:'Fraunces',serif; font-weight:400; font-style:italic;}
+
+  /* ---------- ARTIST ---------- */
+  .artist-grid{
+    display:grid; grid-template-columns:.75fr 1.25fr; gap:64px; align-items:center;
+  }
+  .artist-card{
+    background:var(--navy-mid); border:1px solid var(--navy-line); padding:30px; border-radius:2px;
+  }
+  .artist-card svg{width:100%; display:block;}
+  .artist-name{font-family:'Fraunces',serif; font-style:italic; color:var(--baby); font-size:1.4rem; margin-top:18px;}
+  .artist-role{font-family:'IBM Plex Mono',monospace; font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; color:var(--baby-dim); margin-top:6px;}
+
+  /* ---------- MOVEMENT / MANIFESTO ---------- */
+  .movement-band{background:var(--navy); border-top:1px solid var(--navy-line); border-bottom:1px solid var(--navy-line);}
+  .manifesto{border-top:1px solid var(--navy-line);}
+  .m-item{border-bottom:1px solid var(--navy-line);}
+  .m-item button{
+    width:100%; text-align:left; background:none; border:none; color:var(--paper);
+    font-family:'Fraunces',serif; font-size:1.25rem; padding:22px 0; cursor:pointer;
+    display:flex; justify-content:space-between; align-items:center; gap:20px;
+  }
+  .m-item button .idx{font-family:'IBM Plex Mono',monospace; font-size:.7rem; color:var(--baby-dim); margin-right:16px;}
+  .m-item button .plus{color:var(--baby); font-family:'IBM Plex Mono',monospace; font-size:1.1rem; transition:transform .25s ease; flex-shrink:0;}
+  .m-item.open button .plus{transform:rotate(45deg);}
+  .m-item .body{
+    max-height:0; overflow:hidden; transition:max-height .35s ease;
+  }
+  .m-item .body p{color:var(--paper-dim); padding-bottom:24px; max-width:640px;}
+
+  /* ---------- GALLERY ---------- */
+  .gallery-grid{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:22px;
+  }
+  .g-card{
+    background:var(--navy); border:1px solid var(--navy-line);
+    cursor:pointer; overflow:hidden; border-radius:2px;
+    transition:transform .3s ease, border-color .3s ease;
+  }
+  .g-card:hover{transform:translateY(-6px); border-color:var(--baby-dim);}
+  .g-card .art{
+    aspect-ratio:4/3; display:flex; align-items:center; justify-content:center;
+    background:radial-gradient(circle at 50% 40%, rgba(169,214,239,.08), transparent 65%);
+  }
+  .g-card svg{width:78%; height:78%;}
+  .g-card .cap{padding:14px 16px; border-top:1px solid var(--navy-line);}
+  .g-card .cap .t{font-size:.88rem; color:var(--paper);}
+  .g-card .cap .s{font-family:'IBM Plex Mono',monospace; font-size:.65rem; color:var(--baby-dim); text-transform:uppercase; letter-spacing:.08em; margin-top:4px;}
+
+  .lightbox{
+    position:fixed; inset:0; background:rgba(6,11,20,.92); backdrop-filter:blur(4px);
+    display:none; align-items:center; justify-content:center; z-index:100; padding:6vw;
+  }
+  .lightbox.open{display:flex;}
+  .lightbox-inner{
+    max-width:640px; width:100%; background:var(--navy-mid); border:1px solid var(--navy-line);
+    padding:34px; position:relative; border-radius:2px;
+  }
+  .lightbox-inner svg{width:100%; max-height:52vh;}
+  .lightbox-close{
+    position:absolute; top:16px; right:20px; background:none; border:none; color:var(--baby);
+    font-size:1.4rem; cursor:pointer; font-family:'IBM Plex Mono',monospace;
+  }
+  .lightbox-cap .t{font-family:'Fraunces',serif; font-size:1.2rem; margin-top:18px;}
+  .lightbox-cap .s{font-family:'IBM Plex Mono',monospace; font-size:.7rem; color:var(--baby-dim); text-transform:uppercase; letter-spacing:.1em; margin-top:6px;}
+  .lightbox-cap p{color:var(--paper-dim); margin-top:14px; font-size:.92rem;}
+
+  /* ---------- NEWS ---------- */
+  .news-tabs{display:flex; gap:10px; margin-bottom:34px; flex-wrap:wrap;}
+  .news-tabs button{
+    background:none; border:1px solid var(--navy-line); color:var(--paper-dim);
+    font-family:'IBM Plex Mono',monospace; font-size:.7rem; letter-spacing:.08em; text-transform:uppercase;
+    padding:9px 16px; border-radius:20px; cursor:pointer; transition:all .2s ease;
+  }
+  .news-tabs button.active, .news-tabs button:hover{border-color:var(--baby); color:var(--baby);}
+  .news-item{
+    display:grid; grid-template-columns:120px 1fr; gap:26px;
+    padding:26px 0; border-bottom:1px solid var(--navy-line);
+  }
+  .news-item .date{font-family:'IBM Plex Mono',monospace; font-size:.72rem; color:var(--baby-dim); letter-spacing:.06em;}
+  .news-item h3{font-size:1.15rem; font-weight:500;}
+  .news-item p{color:var(--paper-dim); margin:8px 0 0; font-size:.94rem; max-width:600px;}
+  .news-item .tag{
+    display:inline-block; margin-top:10px; font-family:'IBM Plex Mono',monospace;
+    font-size:.62rem; letter-spacing:.1em; text-transform:uppercase; color:var(--baby-soft);
+  }
+
+  /* ---------- ADS ---------- */
+  .ads-section{background:var(--navy-deep); border-top:1px dashed var(--navy-line);}
+  .ads-label{font-family:'IBM Plex Mono',monospace; font-size:.65rem; color:var(--iron); letter-spacing:.14em; text-transform:uppercase; text-align:center; margin-bottom:26px;}
+  .ads-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
+  .ad-card{
+    border:1px solid var(--navy-line); background:var(--navy);
+    padding:22px; border-radius:2px; transition:transform .25s ease;
+    position:relative;
+  }
+  .ad-card:hover{transform:rotate(-.4deg) translateY(-3px);}
+  .ad-card .ad-flag{position:absolute; top:10px; right:12px; font-family:'IBM Plex Mono',monospace; font-size:.55rem; color:var(--iron); letter-spacing:.1em;}
+  .ad-card h4{font-family:'Fraunces',serif; font-weight:500; color:var(--baby-soft); font-size:1.05rem; margin:0 0 10px;}
+  .ad-card p{color:var(--paper-dim); font-size:.85rem; margin:0 0 16px;}
+  .ad-card a{font-family:'IBM Plex Mono',monospace; font-size:.7rem; letter-spacing:.08em; text-transform:uppercase;}
+
+  /* ---------- EASYPAGEX / FOOTER ---------- */
+  .cta-band{
+    text-align:center; padding:110px 8vw;
+    background:radial-gradient(circle at 50% 0%, rgba(169,214,239,.08), transparent 60%), var(--navy);
+    border-top:1px solid var(--navy-line);
+  }
+  .cta-band p.eyebrow{justify-content:center;}
+  .cta-band p.eyebrow::before{display:none;}
+  .cta-band h2{margin-top:12px; font-size:clamp(1.7rem,3vw,2.3rem);}
+  .easypagex-btn{
+    display:inline-flex; align-items:center; gap:12px;
+    margin-top:34px; padding:16px 34px;
+    background:var(--baby); color:var(--navy-deep);
+    font-family:'IBM Plex Mono',monospace; font-size:.82rem; letter-spacing:.1em; text-transform:uppercase;
+    text-decoration:none; border-radius:2px; font-weight:500;
+    transition:transform .2s ease, box-shadow .2s ease;
+    box-shadow:0 0 0 rgba(169,214,239,0);
+  }
+  .easypagex-btn:hover{transform:translateY(-3px); box-shadow:0 10px 30px rgba(169,214,239,.25);}
+  .easypagex-btn .arrow{transition:transform .2s ease;}
+  .easypagex-btn:hover .arrow{transform:translateX(4px);}
+  .cta-note{margin-top:16px; font-family:'IBM Plex Mono',monospace; font-size:.68rem; color:var(--iron);}
+
+  footer{
+    padding:36px 8vw; text-align:center; color:var(--iron);
+    font-family:'IBM Plex Mono',monospace; font-size:.68rem; letter-spacing:.06em;
+    border-top:1px solid var(--navy-line);
+  }
+
+  @media (max-width:880px){
+    section{padding:90px 6vw;}
+    .hero-inner, .piece-grid, .artist-grid{grid-template-columns:1fr; gap:44px;}
+    .gallery-grid, .ads-grid{grid-template-columns:1fr 1fr;}
+    nav ul{display:none;}
+  }
+  @media (max-width:560px){
+    .gallery-grid, .ads-grid{grid-template-columns:1fr;}
+    .news-item{grid-template-columns:1fr; gap:8px;}
+  }
+
+  :focus-visible{outline:2px solid var(--baby); outline-offset:2px;}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="brand">Iron Bloom</div>
+  <ul>
+    <li><a href="#piece">The Piece</a></li>
+    <li><a href="#artist">Artist</a></li>
+    <li><a href="#movement">Movement</a></li>
+    <li><a href="#gallery">Gallery</a></li>
+    <li><a href="#news">News</a></li>
+  </ul>
+</nav>
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="hero-inner">
+    <div>
+      <p class="eyebrow">Iron Bloom · Cat. No. IB‑014</p>
+      <h1>The Architect's<br><em>Insomnia</em></h1>
+      <p class="byline">A mixed‑media work by <strong>Marisol Quintane</strong> — wrought steel, graphite, and blueprint linen, built after three sleepless winters spent redrawing the same staircase.</p>
+      <div class="meta-row">
+        <div>Medium <span>Forged iron &amp; ink on linen</span></div>
+        <div>Year <span>2024</span></div>
+        <div>Movement <span>Iron Bloom</span></div>
+      </div>
+    </div>
+    <div class="clock-wrap">
+      <div class="clock-face">
+        <svg viewBox="0 0 200 200">
+          <circle cx="100" cy="100" r="96" fill="none" stroke="#2a4260" stroke-width="1"/>
+          <circle cx="100" cy="100" r="82" fill="none" stroke="#2a4260" stroke-width="1" stroke-dasharray="2 6"/>
+          <g id="ticks"></g>
+          <line id="hourHand" class="hand" x1="100" y1="100" x2="100" y2="58" stroke="#a9d6ef" stroke-width="4" stroke-linecap="round"/>
+          <line id="minHand" class="hand" x1="100" y1="100" x2="100" y2="38" stroke="#7fb6d9" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="100" cy="100" r="4" fill="#e7f1f8"/>
+        </svg>
+      </div>
+      <div class="awake-counter">
+        <div class="num mono" id="awakeTime">00:00:00</div>
+        <div class="lbl">Hours the architect has been awake</div>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-cue"><span class="line"></span>Scroll, if you can't sleep either</div>
+</header>
+
+<!-- ================= THE PIECE ================= -->
+<section id="piece">
+  <div class="piece-grid">
+    <div class="frame reveal" data-tag="Fig. 01 — Working Drawing">
+      <svg viewBox="0 0 300 340" width="100%">
+        <rect x="0" y="0" width="300" height="340" fill="#0d1b2e"/>
+        <g stroke="#2a4260" stroke-width="1">
+          <line x1="0" y1="40" x2="300" y2="40"/>
+          <line x1="0" y1="300" x2="300" y2="300"/>
+          <line x1="40" y1="0" x2="40" y2="340"/>
+          <line x1="260" y1="0" x2="260" y2="340"/>
+        </g>
+        <path d="M60 280 L60 120 Q60 90 90 90 L120 90" fill="none" stroke="#7fb6d9" stroke-width="2"/>
+        <path d="M120 90 C140 70 150 40 130 20 C150 30 165 55 150 80 C170 65 175 40 160 15" fill="none" stroke="#a9d6ef" stroke-width="2"/>
+        <circle cx="150" cy="30" r="4" fill="#a9d6ef"/>
+        <circle cx="132" cy="55" r="3" fill="#a9d6ef"/>
+        <circle cx="168" cy="45" r="3" fill="#a9d6ef"/>
+        <g stroke="#3a5570" stroke-width="1" stroke-dasharray="3 4">
+          <line x1="60" y1="280" x2="230" y2="280"/>
+          <line x1="230" y1="90" x2="230" y2="280"/>
+        </g>
+        <text x="64" y="298" fill="#5c88a3" font-family="IBM Plex Mono" font-size="9">3.4m RISE — UNBUILT STAIR</text>
+      </svg>
+    </div>
+    <div class="piece-copy reveal">
+      <p class="eyebrow">The Piece</p>
+      <p>A staircase that leads nowhere, forged in iron and left to flower.</p>
+      <p><em>The Architect's Insomnia</em> began as a set of discarded drawings — a staircase Quintane could never make structurally sound, redrawn compulsively across four notebooks between 2 and 5 a.m. Rather than resolve the design, she forged it: bending reinforcing bar into the exact, impossible curve her calculations kept rejecting, then grafting hand‑hammered iron blossoms onto every joint that should have failed.</p>
+      <p>The finished work hangs at a deliberate tilt, eleven degrees off true vertical — the same tilt, Quintane says, at which a body finally gives in to sleep. Blueprint linen behind the ironwork still carries her original pencil marks, visible only under raking light, so the "mistake" that caused the insomnia remains legible beneath the bloom that resolved it.</p>
+      <p>It is the founding work of Iron Bloom, the movement that now bears its logic: structure first, failure second, flowering third.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ARTIST ================= -->
+<section id="artist">
+  <div class="artist-grid">
+    <div class="artist-card reveal">
+      <svg viewBox="0 0 200 240">
+        <rect width="200" height="240" fill="#142943"/>
+        <g stroke="#a9d6ef" stroke-width="1.4" fill="none">
+          <path d="M100 40 C70 40 55 65 55 95 C55 135 75 160 100 165 C125 160 145 135 145 95 C145 65 130 40 100 40Z"/>
+          <path d="M70 165 C70 195 80 215 100 225 C120 215 130 195 130 165" />
+        </g>
+        <g stroke="#5c88a3" stroke-width="1">
+          <line x1="20" y1="30" x2="180" y2="30"/>
+          <line x1="20" y1="30" x2="20" y2="210"/>
+        </g>
+        <g fill="#7fb6d9">
+          <circle cx="82" cy="90" r="2.5"/>
+          <circle cx="118" cy="90" r="2.5"/>
+        </g>
+      </svg>
+      <div class="artist-name">Marisol Quintane</div>
+      <div class="artist-role">B. 1986 · Sculptor &amp; Draftswoman</div>
+    </div>
+    <div class="reveal">
+      <p class="eyebrow">The Artist</p>
+      <h2>Trained as an architect. Practices as an insomniac.</h2>
+      <p style="color:var(--paper-dim); margin-top:22px;">Marisol Quintane spent eleven years designing buildings that were, in her own description, "correct and forgettable." In 2021 she left practice to work exclusively at night, in a studio she keeps lit like a drafting office — full fluorescent, no lamps — because "the insomnia doesn't need to be flattered with atmosphere."</p>
+      <p style="color:var(--paper-dim); margin-top:16px;">Her sculptures begin as failed structural drawings: staircases that can't bear weight, cantilevers that would snap, joints that were never going to hold. She forges the failure in iron, then adds the bloom — hand‑worked floral ironwork — over precisely the point where the structure gave out. She has said the flowers are "not decoration, they're a splint."</p>
+      <p style="color:var(--paper-dim); margin-top:16px;">She lives and works between Oaxaca and a rented workshop outside Bilbao, and has not, by her own account, slept a full night since 2019.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MOVEMENT ================= -->
+<section class="movement-band" id="movement">
+  <div class="sec-head reveal">
+    <p class="eyebrow">Category / Movement</p>
+    <h2>Iron Bloom</h2>
+    <p style="color:var(--paper-dim); margin-top:16px; max-width:640px;">A movement of structural failure and floral repair — artists who forge the exact point a design collapsed, then grow something ornamental out of the wound. Four tenets, expanded below.</p>
+  </div>
+  <div class="manifesto reveal">
+    <div class="m-item">
+      <button aria-expanded="false"><span><span class="idx">01</span>Structure first</span><span class="plus">+</span></button>
+      <div class="body"><p>Every Iron Bloom piece starts as a real, failed engineering drawing — never an invented shape. The flaw has to be true before it can be forged.</p></div>
+    </div>
+    <div class="m-item">
+      <button aria-expanded="false"><span><span class="idx">02</span>Failure kept visible</span><span class="plus">+</span></button>
+      <div class="body"><p>The point of collapse is never hidden or reinforced invisibly. It stays legible under the ironwork — usually as a stress mark, a fracture line, or, in Quintane's case, the original pencil drawing.</p></div>
+    </div>
+    <div class="m-item">
+      <button aria-expanded="false"><span><span class="idx">03</span>The bloom is a splint, not a decoration</span><span class="plus">+</span></button>
+      <div class="body"><p>Floral ironwork is applied only at load‑bearing failure points, functioning as a literal (if symbolic) repair — never scattered for ornament elsewhere on the piece.</p></div>
+    </div>
+    <div class="m-item">
+      <button aria-expanded="false"><span><span class="idx">04</span>Made at the hour it was drawn</span><span class="plus">+</span></button>
+      <div class="body"><p>Iron Bloom artists forge during the same hours the original failure was drawn — for Quintane, always between 2 and 5 a.m. — treating fatigue as a working material.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= GALLERY ================= -->
+<section id="gallery">
+  <div class="sec-head reveal">
+    <p class="eyebrow">Gallery</p>
+    <h2>Details from the piece</h2>
+  </div>
+  <div class="gallery-grid" id="galleryGrid"></div>
+</section>
+
+<div class="lightbox" id="lightbox">
+  <div class="lightbox-inner">
+    <button class="lightbox-close" id="lightboxClose" aria-label="Close">&times;</button>
+    <div id="lightboxArt"></div>
+    <div class="lightbox-cap">
+      <div class="t" id="lightboxTitle"></div>
+      <div class="s" id="lightboxSub"></div>
+      <p id="lightboxDesc"></p>
+    </div>
+  </div>
+</div>
+
+<!-- ================= NEWS ================= -->
+<section id="news">
+  <div class="sec-head reveal">
+    <p class="eyebrow">News</p>
+    <h2>Coverage &amp; updates</h2>
+  </div>
+  <div class="news-tabs reveal">
+    <button data-filter="all" class="active">All</button>
+    <button data-filter="exhibition">Exhibitions</button>
+    <button data-filter="press">Press</button>
+    <button data-filter="studio">Studio</button>
+  </div>
+  <div id="newsList" class="reveal"></div>
+</section>
+
+<!-- ================= ADS ================= -->
+<section class="ads-section">
+  <div class="ads-label">Advertisement</div>
+  <div class="ads-grid">
+    <div class="ad-card">
+      <span class="ad-flag">SPONSORED</span>
+      <h4>Iron Bloom Editions</h4>
+      <p>Numbered graphite studies from the Insomnia series, printed on the same blueprint linen stock. Edition of 40.</p>
+      <a href="#">Shop the edition →</a>
+    </div>
+    <div class="ad-card">
+      <span class="ad-flag">SPONSORED</span>
+      <h4>Nocturne Gallery — Late Hours</h4>
+      <p>Open 9 p.m.–2 a.m. through the run of the Iron Bloom group show. No appointment needed after midnight.</p>
+      <a href="#">Plan a late visit →</a>
+    </div>
+    <div class="ad-card">
+      <span class="ad-flag">SPONSORED</span>
+      <h4>Quintane Studio Dispatch</h4>
+      <p>A short, irregular newsletter sent whenever the studio lights are still on. No schedule, no promises.</p>
+      <a href="#">Subscribe →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CTA / EASYPAGEX ================= -->
+<div class="cta-band">
+  <p class="eyebrow">Keep exploring</p>
+  <h2>See the full Iron Bloom collection</h2>
+  <a class="easypagex-btn" id="easypagexBtn" href="#" target="_blank" rel="noopener">
+    View on EasyPageX <span class="arrow">→</span>
+  </a>
+  <p class="cta-note">Replace the placeholder link in the code with your EasyPageX page URL.</p>
+</div>
+
+<footer>
+  © 2024 Marisol Quintane · Iron Bloom · The Architect's Insomnia — a fictional art‑piece microsite
+</footer>
+
+<script>
+  // ---------- clock ticks ----------
+  const ticksG = document.getElementById('ticks');
+  for(let i=0;i<12;i++){
+    const angle = (i/12)*2*Math.PI;
+    const x1 = 100 + 88*Math.sin(angle), y1 = 100 - 88*Math.cos(angle);
+    const x2 = 100 + 78*Math.sin(angle), y2 = 100 - 78*Math.cos(angle);
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',x1); line.setAttribute('y1',y1);
+    line.setAttribute('x2',x2); line.setAttribute('y2',y2);
+    line.setAttribute('stroke','#3a5570'); line.setAttribute('stroke-width','1');
+    ticksG.appendChild(line);
+  }
+
+  // insomniac clock: irregular jitter instead of steady sweep
+  const hourHand = document.getElementById('hourHand');
+  const minHand = document.getElementById('minHand');
+  let hourAngle = 40, minAngle = 10;
+  function jitterClock(){
+    hourAngle += (Math.random()-0.5)*3;
+    minAngle += (Math.random()-0.4)*10;
+    hourHand.style.transform = `rotate(${hourAngle}deg)`;
+    minHand.style.transform = `rotate(${minAngle}deg)`;
+    const next = 900 + Math.random()*1400; // irregular restless timing
+    setTimeout(jitterClock, next);
+  }
+  jitterClock();
+
+  // ---------- awake counter (since page opened) ----------
+  const start = Date.now();
+  const awakeEl = document.getElementById('awakeTime');
+  function pad(n){return n.toString().padStart(2,'0');}
+  setInterval(()=>{
+    const diff = Math.floor((Date.now()-start)/1000);
+    const h = Math.floor(diff/3600), m = Math.floor((diff%3600)/60), s = diff%60;
+    awakeEl.textContent = `${pad(h)}:${pad(m)}:${pad(s)}`;
+  }, 1000);
+
+  // ---------- scroll reveal ----------
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
+  }, {threshold:.15});
+  revealEls.forEach(el=>io.observe(el));
+
+  // ---------- manifesto accordion ----------
+  document.querySelectorAll('.m-item button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const item = btn.closest('.m-item');
+      const body = item.querySelector('.body');
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.m-item').forEach(i=>{
+        i.classList.remove('open');
+        i.querySelector('.body').style.maxHeight = null;
+        i.querySelector('button').setAttribute('aria-expanded','false');
+      });
+      if(!isOpen){
+        item.classList.add('open');
+        body.style.maxHeight = body.scrollHeight + 'px';
+        btn.setAttribute('aria-expanded','true');
+      }
+    });
+  });
+
+  // ---------- gallery data + render ----------
+  const artworks = [
+    {
+      title:'Detail — Bloom at the failed joint',
+      sub:'Fig. 02 · Forged iron',
+      desc:'The exact point where the staircase calculation gave out, now sealed under hammered iron petals.',
+      svg:`<svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="6" fill="#a9d6ef"/>
+        <path d="M100 100 C80 80 80 50 100 40 C120 50 120 80 100 100" fill="none" stroke="#7fb6d9" stroke-width="2"/>
+        <path d="M100 100 C120 80 150 80 160 100 C150 120 120 120 100 100" fill="none" stroke="#a9d6ef" stroke-width="2"/>
+        <path d="M100 100 C120 120 120 150 100 160 C80 150 80 120 100 100" fill="none" stroke="#7fb6d9" stroke-width="2"/>
+        <path d="M100 100 C80 120 50 120 40 100 C50 80 80 80 100 100" fill="none" stroke="#a9d6ef" stroke-width="2"/></svg>`
+    },
+    {
+      title:'Preparatory blueprint, west wing',
+      sub:'Fig. 03 · Ink on linen',
+      desc:'One of four notebook pages redrawing the same impossible stair, kept visible beneath the final ironwork.',
+      svg:`<svg viewBox="0 0 200 200"><rect width="200" height="200" fill="none"/>
+        <path d="M30 170 L30 90 Q30 60 60 60 L140 60" fill="none" stroke="#7fb6d9" stroke-width="2"/>
+        <g stroke="#3a5570" stroke-width="1"><line x1="30" y1="170" x2="170" y2="170"/><line x1="60" y1="60" x2="60" y2="170"/><line x1="90" y1="60" x2="90" y2="170"/><line x1="120" y1="60" x2="120" y2="170"/></g>
+        <text x="34" y="184" font-family="IBM Plex Mono" font-size="8" fill="#5c88a3">RISE / RUN — REJECTED</text></svg>`
+    },
+    {
+      title:'Ironwork gate study, no. 3',
+      sub:'Fig. 04 · Hand‑forged steel',
+      desc:'A companion gate, forged from the same failed cantilever calculations as the main piece.',
+      svg:`<svg viewBox="0 0 200 200"><g stroke="#a9d6ef" stroke-width="2" fill="none">
+        <line x1="40" y1="20" x2="40" y2="180"/><line x1="160" y1="20" x2="160" y2="180"/>
+        <path d="M40 60 C70 40 90 40 100 60 C110 40 130 40 160 60"/>
+        <path d="M40 120 C70 100 90 100 100 120 C110 100 130 100 160 120"/></g>
+        <g fill="#7fb6d9"><circle cx="100" cy="60" r="4"/><circle cx="100" cy="120" r="4"/></g></svg>`
+    },
+    {
+      title:'Night window, studio wall',
+      sub:'Fig. 05 · Reference sketch',
+      desc:'The view from Quintane\'s drafting table between 2 and 5 a.m., referenced across the whole series.',
+      svg:`<svg viewBox="0 0 200 200"><rect x="40" y="20" width="120" height="160" fill="none" stroke="#3a5570" stroke-width="1"/>
+        <line x1="100" y1="20" x2="100" y2="180" stroke="#3a5570" stroke-width="1"/>
+        <line x1="40" y1="100" x2="160" y2="100" stroke="#3a5570" stroke-width="1"/>
+        <g fill="#a9d6ef"><circle cx="70" cy="55" r="1.6"/><circle cx="130" cy="45" r="1.4"/><circle cx="150" cy="70" r="1.2"/><circle cx="60" cy="140" r="1.4"/><circle cx="120" cy="150" r="1.6"/></g>
+        <circle cx="90" cy="60" r="14" fill="none" stroke="#7fb6d9" stroke-width="1.5"/></svg>`
+    },
+    {
+      title:'Iron Bloom, motif study',
+      sub:'Fig. 06 · Movement reference',
+      desc:'A standalone study of the movement\'s core motif — bloom grafted directly onto a fracture line.',
+      svg:`<svg viewBox="0 0 200 200"><line x1="20" y1="140" x2="180" y2="60" stroke="#3a5570" stroke-width="2" stroke-dasharray="4 4"/>
+        <g stroke="#a9d6ef" stroke-width="2" fill="none">
+          <circle cx="100" cy="100" r="18"/>
+          <path d="M100 82 C90 60 90 40 100 30"/><path d="M118 100 C140 90 160 90 170 100"/>
+          <path d="M100 118 C110 140 110 160 100 170"/><path d="M82 100 C60 110 40 110 30 100"/>
+        </g></svg>`
+    },
+    {
+      title:'Final piece, installed tilt',
+      sub:'Fig. 07 · Installation view',
+      desc:'The completed sculpture hung at eleven degrees off vertical, its resolved bloom fully visible.',
+      svg:`<svg viewBox="0 0 200 200"><g transform="rotate(-11 100 100)">
+        <line x1="100" y1="20" x2="100" y2="180" stroke="#7fb6d9" stroke-width="2"/>
+        <path d="M100 60 C80 45 80 25 100 15 C120 25 120 45 100 60" fill="none" stroke="#a9d6ef" stroke-width="2"/>
+        <path d="M100 120 C80 105 80 85 100 75 C120 85 120 105 100 120" fill="none" stroke="#a9d6ef" stroke-width="2"/>
+        </g></svg>`
+    }
+  ];
+
+  const grid = document.getElementById('galleryGrid');
+  artworks.forEach((a,i)=>{
+    const card = document.createElement('div');
+    card.className = 'g-card reveal';
+    card.innerHTML = `<div class="art">${a.svg}</div><div class="cap"><div class="t">${a.title}</div><div class="s">${a.sub}</div></div>`;
+    card.addEventListener('click', ()=>openLightbox(a));
+    grid.appendChild(card);
+    io.observe(card);
+  });
+
+  const lightbox = document.getElementById('lightbox');
+  function openLightbox(a){
+    document.getElementById('lightboxArt').innerHTML = a.svg;
+    document.getElementById('lightboxTitle').textContent = a.title;
+    document.getElementById('lightboxSub').textContent = a.sub;
+    document.getElementById('lightboxDesc').textContent = a.desc;
+    lightbox.classList.add('open');
+  }
+  document.getElementById('lightboxClose').addEventListener('click', ()=>lightbox.classList.remove('open'));
+  lightbox.addEventListener('click', (e)=>{ if(e.target===lightbox) lightbox.classList.remove('open'); });
+  document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') lightbox.classList.remove('open'); });
+
+  // ---------- news ----------
+  const news = [
+    {date:'JUN 2026', cat:'exhibition', tag:'Exhibition', title:'Iron Bloom group show opens at Nocturne Gallery', body:'The Architect\'s Insomnia anchors a six‑artist survey of the Iron Bloom movement, running through late‑night hours only.'},
+    {date:'MAR 2026', cat:'press', tag:'Press', title:'"The failure you can still see" — a profile of Quintane', body:'A long‑form piece on Quintane\'s nocturnal studio practice and the notebooks behind the Insomnia series.'},
+    {date:'DEC 2025', cat:'studio', tag:'Studio', title:'Quintane begins a second staircase study', body:'Early sketches suggest a companion piece exploring a spiral stair rejected on structural grounds in 2018.'},
+    {date:'SEP 2025', cat:'exhibition', tag:'Exhibition', title:'The Architect\'s Insomnia acquired for permanent display', body:'The piece enters a private collection with public viewing hours, its blueprint linen re‑backed for long‑term conservation.'},
+    {date:'JUL 2025', cat:'press', tag:'Press', title:'Iron Bloom named among the year\'s defining movements', body:'Critics point to the movement\'s refusal to hide structural failure as a departure from repair‑as‑restoration norms.'}
+  ];
+  const newsList = document.getElementById('newsList');
+  function renderNews(filter){
+    newsList.innerHTML = '';
+    news.filter(n=>filter==='all'||n.cat===filter).forEach(n=>{
+      const item = document.createElement('div');
+      item.className = 'news-item';
+      item.innerHTML = `<div class="date mono">${n.date}</div><div><h3>${n.title}</h3><p>${n.body}</p><span class="tag">${n.tag}</span></div>`;
+      newsList.appendChild(item);
+    });
+  }
+  renderNews('all');
+  document.querySelectorAll('.news-tabs button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.news-tabs button').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      renderNews(btn.dataset.filter);
+    });
+  });
+
+  // ---------- EasyPageX button placeholder link ----------
+  document.getElementById('easypagexBtn').setAttribute('href', 'https://easypagex.example.com/iron-bloom');
+</script>
+
+</body>
+</html>
